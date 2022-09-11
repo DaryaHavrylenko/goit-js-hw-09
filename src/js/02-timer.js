@@ -1,61 +1,65 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 let selectedDate = null;
-const currentDate = date.now();
+let currentDate = null;
+let intervalId = null;
+let delta = 0;
 
 const input = document.querySelector('#datetime-picker');
-const buttonStart = document.querySelector('[data-start]');
-const days = document.querySelector('[data-days]');
-const hours = document.querySelector('[data-hours]');
-const minutes = document.querySelector('[data-minutes]');
-const seconds = document.querySelector('[data-seconds]');
+const buttonStart = document.querySelector('button[data-start]');
+
+const deltaDays = document.querySelector('[data-days]');
+
+const deltaHours = document.querySelector('[data-hours]');
+const deltaMinutes = document.querySelector('[data-minutes]');
+const deltaSeconds = document.querySelector('[data-seconds]');
 
 const options = {
-  enableTime: true,
-  dateFormat: 'Y-m-d H:i',
-  time_24hr: true,
-  defaultDate: new Date(),
+    enableTime: true,
+    dateFormat: 'Y-m-d H:i',
+    time_24hr: true,
+    defaultDate: new Date(),
   minuteIncrement: 1,
-  onClose(selectedDates) {
-    console.log(selectedDates[0]);
-  },
-};
+    enableSeconds: true,
+    onClose(selectedDates) {
+      console.log(selectedDates[0]);
+      selectedDate = selectedDates[0].getTime();
+      currentDate = options.defaultDate.getTime()
+if (currentDate > selectedDate) {
+            buttonStart.disabled = true;
+            // window.alert('Please choose a date in the future');
+  Notify.failure('Please choose a date in the future');
+            return;
+        } 
+        buttonStart.disabled = false;
+      }
+        };
+
 
 flatpickr(input, options);
 
-const timer = {
-  intervalId: null,
-  isActive: false,
-  start() {
-    if (this.isActive) {
-      return;
-    }
 
-    const startTime = Date.now();
-    this.isActive = true;
-    this.intervalId = setInterval(() => {
-      const currentTime = Date.now();
-      const deltaTime = currentTime - startTime;
-      const { days, hours, minutes, seconds } = convertMs(deltaTime);
-      console.log(`${days}::${hours}:${minutes}:${seconds}`);
-    }, 1000);
-  },
-  stop() {
-    clearInterval(this.intervalId);
-    this.isActive = false;
-  },
-};
-function updateClockFace({ days, hours, minutes, seconds }) {
-  days.textContent = `${days}`;
-  hours.textContent = `${hours}`;
-  minutes.textContent = `${minutes}`;
-  seconds.textContent = `${seconds}`;
+
+buttonStart.addEventListener('click', onStart);
+buttonStart.disabled = true;
+
+function onStart() {
+   buttonStart.disabled = true;
+  intervalId = setInterval(() => {
+    if (selectedDate - currentDate < 999) {
+      clearInterval(intervalId);
+      return;
+    } else {
+      currentDate += 1000;
+      delta = Math.floor(selectedDate - currentDate);
+      convertMs(delta);
+       }
+  },1000)
+    
 }
-// timer.start();
-buttonStart.addEventListener('click', () => {
-  timer.start();
-});
+
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
 }
@@ -75,10 +79,13 @@ function convertMs(ms) {
   const seconds = addLeadingZero(
     Math.floor((((ms % day) % hour) % minute) / second)
   );
-
+  createMarkUp({ days, hours, minutes, seconds });
   return { days, hours, minutes, seconds };
 }
 
-// console.log(convertMs());
-// console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-// console.log(convertMs(24140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
+function createMarkUp({ days, hours, minutes, seconds }) {
+  deltaDays.textContent = days;
+  deltaHours.textContent = hours;
+  deltaMinutes.textContent = minutes;
+  deltaSeconds.textContent = seconds;
+}
