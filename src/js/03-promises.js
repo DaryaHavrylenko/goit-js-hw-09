@@ -12,30 +12,26 @@ function onCreatePromise(event) {
   let newDelay = Number(delay.value);
 
   for (let i = 1; i <= amount.value; i += 1) {
-    createPromise(i, newDelay)
-      .then(({ position, delay }) => {
-        setTimeout(() => {
-          Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
-        }, delay);
-      })
-      .catch(({ position, delay }) => {
-        setTimeout(() => {
-          Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
-        }, delay);
-      });
     newDelay = newDelay + Number(step.value);
+    createPromise(i, newDelay);
   }
+  
 }
-
 
 function createPromise(position, delay) {
   return new Promise((resolve, reject) => {
     const shouldResolve = Math.random() > 0.3;
-    if (shouldResolve) {
-      resolve({ position, delay });
-    } else {
-      reject({ position, delay });
-    }
+
+    setTimeout(() => {
+      if (shouldResolve) {
+        resolve(Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`));
+      } else {
+reject(Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`));
+      }
+      
+    }, delay);
+  
+    
   });
 
 }

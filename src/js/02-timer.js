@@ -18,7 +18,6 @@ const deltaSeconds = document.querySelector('[data-seconds]');
 
 const options = {
     enableTime: true,
-    dateFormat: 'Y-m-d H:i',
     time_24hr: true,
     defaultDate: new Date(),
   minuteIncrement: 1,
