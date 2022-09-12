@@ -6,14 +6,14 @@ form.addEventListener('submit', onCreatePromise);
 function onCreatePromise(event) {
   event.preventDefault();
   const {
-    elements: { delay, step, amount },
+    elements: { delay, step, amount,position },
   } = event.currentTarget;
 
   let newDelay = Number(delay.value);
 
   for (let i = 1; i <= amount.value; i += 1) {
     newDelay = newDelay + Number(step.value);
-    createPromise(i, newDelay);
+    createPromise(i, newDelay).then(({ position, delay }) => { Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`) }).catch(({ position, delay }) => { Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`)});
   }
   
 }
@@ -24,9 +24,9 @@ function createPromise(position, delay) {
 
     setTimeout(() => {
       if (shouldResolve) {
-        resolve(Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`));
+        resolve({ position, delay });
       } else {
-reject(Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`));
+reject({ position, delay});
       }
       
     }, delay);

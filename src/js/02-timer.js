@@ -45,6 +45,7 @@ buttonStart.addEventListener('click', onStart);
 buttonStart.disabled = true;
 
 function onStart() {
+  input.disabled = true;
    buttonStart.disabled = true;
   intervalId = setInterval(() => {
     if (selectedDate - currentDate < 999) {
